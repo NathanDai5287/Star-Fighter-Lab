@@ -33,6 +33,9 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 
 		//instantiate other instance variables
 		//Ship, Alien
+		ship = new Ship(100, 100, 30, 30, 10);
+//		alienOne = new Alien(100, 100, 30, 30, 10);
+//		alienTwo = new Alien(150, 100, 30, 30, 10);
 
 		this.addKeyListener(this);
 		new Thread(this).start();
@@ -48,7 +51,7 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 		//set up the double buffering to make the game animation nice and smooth
 		Graphics2D twoDGraph = (Graphics2D) window;
 
-		//take a snap shop of the current screen and same it as an image
+		//take a snapshot of the current screen and save it as an image
 		//that is the exact same width and height as the current screen
 		if (back == null)
 			back = (BufferedImage) (createImage(getWidth(), getHeight()));
@@ -62,8 +65,21 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 		graphToBack.setColor(Color.BLACK);
 		graphToBack.fillRect(0, 0, 800, 600);
 
+		ship.draw(window);
+//		alienOne.draw(window);
+//		alienTwo.draw(window);
+
 		if (keys[0]) {
 			ship.move("LEFT");
+		}
+		if (keys[1]) {
+			ship.move("RIGHT");
+		}
+		if (keys[2]) {
+			ship.move("UP");
+		}
+		if (keys[3]) {
+			ship.move("DOWN");
 		}
 
 		//add code to move Ship, Alien, etc.
@@ -71,7 +87,7 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 
 		//add in collision detection to see if Bullets hit the Aliens and if Bullets hit the Ship
 
-
+		ship.draw(graphToBack);
 		twoDGraph.drawImage(back, null, 0, 0);
 	}
 

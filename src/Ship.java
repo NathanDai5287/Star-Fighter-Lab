@@ -14,11 +14,11 @@ public class Ship extends MovingThing {
 	}
 
 	public Ship(int x, int y) {
-		//add code here
+		this(x, y, 10, 10, 10);
 	}
 
 	public Ship(int x, int y, int s) {
-		//add code here
+		this(x, y, 10, 10, s);
 	}
 
 	// all ctors call this ctor
@@ -35,15 +35,28 @@ public class Ship extends MovingThing {
 
 
 	public void setSpeed(int s) {
-		//add more code
+		speed = s;
 	}
 
 	public int getSpeed() {
-		return 0;
+		return speed;
 	}
 
 	public void move(String direction) {
-		//add code here
+		switch (direction) {
+			case "LEFT":
+				setX(getX() - speed);
+				break;
+			case "RIGHT":
+				setX(getX() + speed);
+				break;
+			case "UP":
+				setY(getY() - speed);
+				break;
+			case "DOWN":
+				setY(getY() + speed);
+				break;
+		}
 	}
 
 	public void draw(Graphics window) {
