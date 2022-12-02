@@ -1,42 +1,63 @@
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Image;
+import java.awt.*;
 import java.io.File;
+import java.net.URL;
 import javax.imageio.ImageIO;
 
 public class Ammo extends MovingThing {
 	private int speed;
+	private Image image;
 
 	public Ammo() {
 		this(0, 0, 0);
 	}
 
 	public Ammo(int x, int y) {
-		//add code
+		this(x, y, 0);
 	}
 
 	public Ammo(int x, int y, int s) {
-		//add code
+		super(x, y, 15, 15);
+		speed = s;
+
+		try {
+			URL url = getClass().getResource("bullet.png");
+			image = ImageIO.read(url);
+		} catch (Exception e) {
+			System.out.println("Error loading bullet.png");
+		}
 	}
 
 	public void setSpeed(int s) {
-		//add code
+		speed = s;
 	}
 
 	public int getSpeed() {
-		return 0;
+		return speed;
 	}
 
 	public void draw(Graphics window) {
-		//add code to draw the ammo
+		window.drawImage(image, getX(), getY(), getWidth(), getHeight(), null);
 	}
 
 
 	public void move(String direction) {
-		//add code to draw the ammo
+		switch (direction) {
+			case "LEFT":
+				setX(getX() - speed);
+				break;
+			case "RIGHT":
+				setX(getX() + speed);
+				break;
+			case "UP":
+				setY(getY() - speed);
+				break;
+			case "DOWN":
+				setY(getY() + speed);
+				break;
+		}
 	}
 
 	public String toString() {
-		return "";
+		return super.toString() + getSpeed();
 	}
 }

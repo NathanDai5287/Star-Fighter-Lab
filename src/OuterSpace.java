@@ -16,6 +16,7 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 	private Ship ship;
 	private Alien alienOne;
 	private Alien alienTwo;
+	private ArrayList<Ammo> shots;
 
   /* uncomment once you are ready for this part
    *
@@ -34,6 +35,7 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 		//instantiate other instance variables
 		//Ship, Alien
 		ship = new Ship(100, 100, 30, 30, 10);
+		shots = new ArrayList<Ammo>();
 		alienOne = new Alien(100, 100, 30, 30, 10);
 		alienTwo = new Alien(150, 100, 30, 30, 10);
 
@@ -56,7 +58,7 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 		if (back == null)
 			back = (BufferedImage) (createImage(getWidth(), getHeight()));
 
-		//create a graphics reference to the back ground image
+		//create a graphics reference to the background image
 		//we will draw all changes on the background image
 		Graphics graphToBack = back.createGraphics();
 
@@ -68,6 +70,8 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 		ship.draw(window);
 		alienOne.draw(window);
 		alienTwo.draw(window);
+
+		shots.forEach(s -> s.draw(window));
 
 		if (keys[0]) {
 			ship.move("LEFT");
@@ -81,9 +85,14 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 		if (keys[3]) {
 			ship.move("DOWN");
 		}
+		if (keys[4]) {
+			shots.add(new Ammo(ship.getX() + ship.getWidth() / 2, ship.getY(), 5));
+			keys[4] = false;
+		}
+
+		shots.forEach(s -> s.move("UP"));
 
 		//add code to move Ship, Alien, etc.
-
 
 		//add in collision detection to see if Bullets hit the Aliens and if Bullets hit the Ship
 
