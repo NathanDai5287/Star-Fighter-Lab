@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 public class Alien extends MovingThing {
 	private int speed;
 	private Image image;
+	private String direction = "RIGHT";
 
 	public Alien() {
 		this(0, 0, 30, 30, 0);
@@ -55,6 +56,21 @@ public class Alien extends MovingThing {
 			case "DOWN":
 				setY(getY() + speed);
 				break;
+		}
+	}
+
+//	move horizontally until it hits the edge of the screen, then move down and change direction
+	public void move() {
+		move(direction);
+		if (getX() < 0) {
+			setX(0);
+			setY(getY() + getHeight());
+			direction = "RIGHT";
+		}
+		if (getX() > 800) {
+			setX(800);
+			setY(getY() + getHeight());
+			direction = "LEFT";
 		}
 	}
 
