@@ -1,7 +1,7 @@
 import java.awt.Color;
 import java.awt.Graphics;
 
-public abstract class MovingThing implements Moveable {
+public abstract class MovingThing implements Moveable, Collideable {
 	private int xPos;
 	private int yPos;
 	private int width;
@@ -65,6 +65,12 @@ public abstract class MovingThing implements Moveable {
 	public abstract void move(String direction);
 
 	public abstract void draw(Graphics window);
+
+	@Override
+	public boolean didCollide(Object o) {
+		MovingThing thing = (MovingThing) o;
+		return (getX() < thing.getX() + thing.getWidth() && getX() + getWidth() > thing.getX() && getY() < thing.getY() + thing.getHeight() && getY() + getHeight() > thing.getY());
+	}
 
 	public String toString() {
 		return getX() + " " + getY() + " " + getWidth() + " " + getHeight();

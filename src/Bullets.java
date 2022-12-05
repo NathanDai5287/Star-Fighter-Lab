@@ -15,18 +15,31 @@ public class Bullets {
 		ammo.add(al);
 	}
 
-	//post - draw each Ammo
-	public void draw(Graphics window) {
-		ammo.forEach(ammo -> ammo.draw(window));
+	public void clear() {
+		ammo.clear();
 	}
 
-	public void move() {
-		ammo.forEach(ammo -> ammo.move());
+	//post - draw each Ammo
+	public void draw(Graphics window) {
+		try {
+			ammo.forEach(ammo -> ammo.draw(window));
+		} catch (Exception ignored) {
+		}
+	}
+
+	public void move(String direction) {
+		ammo.forEach(ammo -> ammo.move(direction));
+	}
+
+	public void remove(int i) {
+		if (i >= 0 && i < ammo.size()) {
+			ammo.remove(i);
+		}
 	}
 
 	// remove any Ammo which has reached the edge of the screen
 	public void cleanUpEdges() {
-		ammo.removeIf(ammo -> ammo.getY() < 0);
+		ammo.removeIf(ammo -> ammo.getY() < 0 || ammo.getY() > 600);
 	}
 
 	public List<Ammo> getList() {

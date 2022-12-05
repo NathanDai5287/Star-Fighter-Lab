@@ -39,10 +39,6 @@ public class Ammo extends MovingThing {
 		window.drawImage(image, getX(), getY(), getWidth(), getHeight(), null);
 	}
 
-	public void move() {
-		move("UP");
-	}
-
 	public void move(String direction) {
 		switch (direction) {
 			case "LEFT":

@@ -17,6 +17,10 @@ public class AlienHorde {
 		}
 	}
 
+	public List<Alien> getAliens() {
+		return aliens;
+	}
+
 	public void add(Alien al) {
 		aliens.add(al);
 	}
@@ -29,20 +33,27 @@ public class AlienHorde {
 		aliens.forEach(alien -> alien.move());
 	}
 
+	public boolean isEmpty() {
+		return aliens.isEmpty();
+	}
+
 	// calculate if Aliens are hit by shots, if so remove the shot and alien and return the number of hits
 	public int calcHits(List<Ammo> shots) {
-		int hits = 0;
-		for (Ammo shot : shots) {
-			for (Alien alien : aliens) {
-				if (shot.getX() >= alien.getX() && shot.getX() <= alien.getX() + alien.getWidth() && shot.getY() >= alien.getY() && shot.getY() <= alien.getY() + alien.getHeight()) {
+		int i;
+		for (Alien alien : aliens) {
+			i = 0;
+			for (Ammo shot : shots) {
+				if (alien.didCollide(shot)) {
 					aliens.remove(alien);
 					shots.remove(shot);
-					hits++;
-					break;
+					return i;
 				}
+
+				i++;
 			}
 		}
-		return hits;
+
+		return -1;
 	}
 
 	public String toString() {

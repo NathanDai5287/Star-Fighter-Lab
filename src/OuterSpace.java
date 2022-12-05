@@ -10,29 +10,37 @@ import static java.lang.Character.*;
 
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.*;
 
 public class OuterSpace extends Canvas implements KeyListener, Runnable {
 	private Ship ship;
-	//	private Alien alienOne;
-//	private Alien alienTwo;
 	private AlienHorde horde;
 	private Bullets shots;
+	private Bullets alienShots;
 
 	private boolean[] keys;
 	private BufferedImage back;
 
+	private Timer alienTimer;
+
+	private int score = 0;
+	private int lives = 3;
+	private boolean pause = false;
+	private boolean lost = false;
+	private boolean won = false;
+
 	public OuterSpace() {
 		setBackground(Color.black);
 
-		keys = new boolean[5];
+		keys = new boolean[6];
 
 		//instantiate other instance variables
 		//Ship, Alien
 		ship = new Ship(400, 400, 30, 30, 10);
+
 		shots = new Bullets();
-//		alienOne = new Alien(100, 100, 30, 30, 10);
-//		alienTwo = new Alien(150, 100, 30, 30, 10);
+		alienShots = new Bullets();
+
 		horde = new AlienHorde(20);
 
 		this.addKeyListener(this);
@@ -42,7 +50,41 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 	}
 
 	public void update(Graphics window) {
-		paint(window);
+		Graphics2D twoDGraph = (Graphics2D) window;
+		if (back == null)
+			back = (BufferedImage) (createImage(getWidth(), getHeight()));
+		Graphics graphToBack = back.createGraphics();
+
+		if (lost) {
+			graphToBack.setColor(Color.BLACK);
+			graphToBack.fillRect(0, 0, 800, 600);
+			graphToBack.setColor(Color.RED);
+			graphToBack.drawString("You lost!", 400, 230);
+			graphToBack.drawString("Your final score was: " + score, 400, 245);
+			twoDGraph.drawImage(back, null, 0, 0);
+		} else if (won) {
+			graphToBack.setColor(Color.BLACK);
+			graphToBack.fillRect(0, 0, 800, 600);
+			graphToBack.setColor(Color.RED);
+			graphToBack.drawString("You Won! Game Over", 400, 230);
+			graphToBack.drawString("Your final score was: " + score, 400, 245);
+			twoDGraph.drawImage(back, null, 0, 0);
+		} else if (pause) {
+			graphToBack.setColor(Color.BLACK);
+			graphToBack.fillRect(0, 0, 800, 600);
+			graphToBack.setColor(Color.RED);
+			graphToBack.drawString("Lives: " + lives, 400, 230);
+			graphToBack.setColor(Color.GREEN);
+			graphToBack.drawString("Press R to resume game", 400, 245);
+			twoDGraph.drawImage(back, null, 0, 0);
+			ship.setX(450);
+			ship.setY(450);
+			if (keys[5]) {
+				pause = false;
+			}
+		} else {
+			paint(window);
+		}
 	}
 
 	public void paint(Graphics window) {
@@ -63,22 +105,26 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 		graphToBack.setColor(Color.BLACK);
 		graphToBack.fillRect(0, 0, 800, 600);
 
-		ship.draw(window);
-//		alienOne.draw(window);
-//		alienTwo.draw(window);
-		horde.draw(window);
-		shots.draw(window);
+		// score and lives
+		graphToBack.setColor(Color.WHITE);
+		graphToBack.fillRect(30, 30 - 10, 150, 15);
+		graphToBack.setColor(Color.BLACK);
+		graphToBack.setColor(Color.WHITE);
+		graphToBack.fillRect(650, 30 - 10, 130, 15);
+		graphToBack.setColor(Color.BLACK);
+		graphToBack.drawString("Lives: " + lives, 30, 30);
+		graphToBack.drawString("Score: " + score, 650, 30);
 
-		if (keys[0]) {
+		if (keys[0] && ship.getX() > 10) {
 			ship.move("LEFT");
 		}
-		if (keys[1]) {
+		if (keys[1] && ship.getX() < 700) {
 			ship.move("RIGHT");
 		}
-		if (keys[2]) {
+		if (keys[2] && ship.getY() > 10) {
 			ship.move("UP");
 		}
-		if (keys[3]) {
+		if (keys[3] && ship.getY() < 500) {
 			ship.move("DOWN");
 		}
 		if (keys[4]) {
@@ -86,14 +132,59 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 			keys[4] = false;
 		}
 
-		shots.move();
+		shots.move("UP");
+		alienShots.move("DOWN");
 		horde.move();
-		//add code to move Ship, Alien, etc.
 
-		//add in collision detection to see if Bullets hit the Aliens and if Bullets hit the Ship
-		horde.calcHits(shots.getList());
+		// see if aliens are hit by ship
+		for (Alien alien : horde.getAliens()) {
+			if (ship.didCollide(alien)) {
+				lives--;
 
-		ship.draw(graphToBack);
+				if (lives == 0) {
+					lost = true;
+				} else {
+					alienShots.clear();
+					pause = true;
+				}
+			}
+		}
+
+		// check for collision between shots and aliens
+		int ihit = horde.calcHits(shots.getList());
+		if (ihit != -1) {
+			score += 10;
+		}
+
+		// check for collision between alien shots and ship
+		for (int i = 0; i < alienShots.getList().size(); i++) {
+			if (alienShots.getList().get(i).didCollide(ship)) {
+				alienShots.remove(i);
+				lives--;
+
+				if (lives == 0) {
+					lost = true;
+				} else {
+					alienShots.clear();
+					pause = true;
+				}
+			}
+		}
+
+		// check for win or game over
+		if (horde.isEmpty()) {
+			won = true;
+		}
+
+		ship.draw(window);
+		horde.draw(window);
+
+		shots.draw(window);
+		shots.cleanUpEdges();
+
+		alienShots.draw(window);
+		alienShots.cleanUpEdges();
+
 		twoDGraph.drawImage(back, null, 0, 0);
 	}
 
@@ -114,6 +205,9 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 			keys[4] = false;
 		}
+		if (e.getKeyCode() == KeyEvent.VK_R) {
+			keys[5] = true;
+		}
 		repaint();
 	}
 
@@ -133,6 +227,9 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 			keys[4] = true;
 		}
+		if (e.getKeyCode() == KeyEvent.VK_R) {
+			keys[5] = false;
+		}
 		repaint();
 	}
 
@@ -142,11 +239,40 @@ public class OuterSpace extends Canvas implements KeyListener, Runnable {
 
 	public void run() {
 		try {
+			new Task().run();
 			while (true) {
 				Thread.currentThread().sleep(5);
 				repaint();
 			}
 		} catch (Exception e) {
+		}
+	}
+
+	public class Task extends TimerTask {
+		Timer timer = new Timer();
+
+		@Override
+		public void run() {
+			int delay = (new Random().nextInt(2)) * 750;
+			timer.schedule(new Task(), delay);
+			int ammoSpeed = 2;
+			if (alienShots.getList().size() <= 10) {
+				try {
+					List<Alien> aliens = horde.getAliens();
+					int size = aliens.size();
+					int randomAlienIndex = (int) (Math.random() * size);
+
+					// spawn ammo
+					int alienX = aliens.get(randomAlienIndex).getX();
+					int alienY = aliens.get(randomAlienIndex).getY();
+					Ammo enemyRound = new Ammo(alienX, alienY, ammoSpeed);
+
+					// add bullet to alienshots
+					alienShots.add(enemyRound);
+				} catch (Exception ignored) {
+				}
+			}
+
 		}
 	}
 }
